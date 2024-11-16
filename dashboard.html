@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debt Management Dashboard</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <style>
+    body {
+      background-color: #f7f9fc;
+      font-family: 'Arial', sans-serif;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100%;
+      background-color: #343a40;
+      padding-top: 20px;
+      color: white;
+      box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
+      transition: width 0.3s;
+    }
+
+    .sidebar.collapsed {
+      width: 80px;
+    }
+
+    .sidebar .nav-item {
+      margin-bottom: 20px;
+    }
+
+    .sidebar .nav-item a {
+      color: white;
+      font-size: 1.1rem;
+      text-decoration: none;
+    }
+
+    .sidebar .nav-item a:hover {
+      color: #ffb703;
+    }
+
+    .content-container {
+      margin-left: 250px;
+      padding-top: 60px;
+      padding-bottom: 40px;
+      transition: margin-left 0.3s;
+    }
+
+    .content-container.collapsed {
+      margin-left: 80px;
+    }
+
+    header {
+      background-color: chocolate;
+      color: white;
+      padding: 2px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    /* Cards */
+    .dashboard-card {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .card-header {
+      background-color: #005f73;
+      color: white;
+      font-weight: bold;
+    }
+
+    .card-body {
+      font-size: 1.25rem;
+    }
+
+    /* Debt List */
+    .debt-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .debt-list li {
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+    }
+
+    .debt-list li:hover {
+      background-color: #f0f4f8;
+    }
+
+    .debt-list li .debt-info {
+      flex: 1;
+    }
+
+    .debt-list li .debt-status {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .debt-list li .debt-status.overdue {
+      color: #e57373;
+    }
+
+    .debt-list li .debt-status.paid {
+      color: #81c784;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #343a40;
+      color: white;
+      padding: 2px;
+      text-align: center;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+
+    footer p {
+      font-size: 1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+      }
+
+      .content-container {
+        margin-left: 0;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+
+      .dashboard-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <ul class="nav flex-column">
+      <li class="nav-item"><a href="#" id="addCustomerBtn">Add Customer</a></li>
+      <li class="nav-item"><a href="#" id="addDebtBtn">Record Debt</a></li>
+      <li class="nav-item"><a href="#" id="viewDebtsBtn">View Debts</a></li>
+      <li class="nav-item"><a href="#" id="searchDebtsBtn">Search Debts</a></li>
+      <li class="nav-item"><a href="#" id="toggleSidebarBtn">Toggle Sidebar</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content Section -->
+  <div id="content" class="content-container container">
+
+    <!-- Header Section -->
+    <header>
+      <h1>Debt Management Dashboard</h1>
+      <p>Track and manage debts with ease</p>
+    </header>
+
+    <!-- Dashboard Cards -->
+    <div class="row">
+      <div class="col-md-4">
+        <div class="dashboard-card">
+          <div class="card-header">
+            Total Debts
+          </div>
+          <div class="card-body">
+            <p>$<span id="totalDebts">0</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="dashboard-card">
+          <div class="card-header">
+            Overdue Debts
+          </div>
+          <div class="card-body">
+            <p><span id="overdueDebts">0</span> Debts</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="dashboard-card">
+          <div class="card-header">
+            Paid Debts
+          </div>
+          <div class="card-body">
+            <p><span id="paidDebts">0</span> Debts</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Debt List Section -->
+    <div id="debtListContainer" class="mt-4"></div>
+
+  </div>
+
+  <!-- Footer Section -->
+  <footer>
+    <p>&copy; 2024 Debt Management System | All Rights Reserved</p>
+  </footer>
+
+  <!-- Bootstrap JS and Popper.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"></script>
+
+  <script>
+    // Sample Data
+    let customers = [];
+    let debts = [];
+
+    const contentDiv = document.getElementById('content');
+    const totalDebtsElem = document.getElementById('totalDebts');
+    const overdueDebtsElem = document.getElementById('overdueDebts');
+    const paidDebtsElem = document.getElementById('paidDebts');
+    const debtListContainer = document.getElementById('debtListContainer');
+    const sidebar = document.getElementById('sidebar');
+
+    // Event Listeners
+    document.getElementById('addCustomerBtn').addEventListener('click', showAddCustomerForm);
+    document.getElementById('addDebtBtn').addEventListener('click', showAddDebtForm);
+    document.getElementById('viewDebtsBtn').addEventListener('click', showDebtsList);
+    document.getElementById('searchDebtsBtn').addEventListener('click', searchDebts);
+    document.getElementById('toggleSidebarBtn').addEventListener('click', toggleSidebar);
+
+    // Toggle Sidebar
+    function toggleSidebar() {
+      sidebar.classList.toggle('collapsed');
+      contentDiv.classList.toggle('collapsed');
+    }
+
+    // Show Add Customer Form
+    function showAddCustomerForm() {
+      contentDiv.innerHTML = `
+        <div class="form-card">
+          <h2>Add Customer</h2>
+          <form id="addCustomerForm">
+            <div class="mb-3">
+              <input type="text" id="customerName" class="form-control" placeholder="Customer Name" required />
+            </div>
+            <div class="mb-3">
+              <input type="text" id="customerContact" class="form-control" placeholder="Customer Contact" required />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Add Customer</button>
+          </form>
+        </div>
+      `;
+
+      document.getElementById('addCustomerForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('customerName').value;
+        const contact = document.getElementById('customerContact').value;
+        if (!name || !contact) {
+          alert('Please fill out both fields.');
+          return;
+        }
+        const newCustomer = { id: customers.length + 1, name, contact };
+        customers.push(newCustomer);
+        alert('Customer added successfully!');
+        showDebtsList();
+      });
+    }
+
+    // Show Add Debt Form
+    function showAddDebtForm() {
+      contentDiv.innerHTML = `
+        <div class="form-card">
+          <h2>Record Debt</h2>
+          <form id="addDebtForm">
+            <div class="mb-3">
+              <select id="customerSelect" class="form-control">
+                ${customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+              </select>
+            </div>
+            <div class="mb-3">
+              <input type="number" id="debtAmount" class="form-control" placeholder="Debt Amount" required />
+            </div>
+            <div class="mb-3">
+              <input type="date" id="debtDueDate" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Add Debt</button>
+          </form>
+        </div>
+      `;
+
+      document.getElementById('addDebtForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const customerId = parseInt(document.getElementById('customerSelect').value);
+        const amount = parseFloat(document.getElementById('debtAmount').value);
+        const dueDate = document.getElementById('debtDueDate').value;
+
+        if (amount <= 0) {
+          alert('Debt amount must be a positive number.');
+          return;
+        }
+
+        const newDebt = {
+          id: debts.length + 1,
+          customerId,
+          amount,
+          dueDate,
+          status: 'Active',
+        };
+        debts.push(newDebt);
+        alert('Debt recorded successfully!');
+        showDebtsList();
+      });
+    }
+
+    // Show List of Debts
+    function showDebtsList() {
+      const totalAmount = debts.reduce((sum, debt) => sum + debt.amount, 0);
+      const overdueDebts = debts.filter(debt => new Date(debt.dueDate) < new Date() && debt.status === 'Active').length;
+      const paidDebts = debts.filter(debt => debt.status === 'Paid').length;
+
+      totalDebtsElem.textContent = totalAmount.toFixed(2);
+      overdueDebtsElem.textContent = overdueDebts;
+      paidDebtsElem.textContent = paidDebts;
+
+      debtListContainer.innerHTML = `
+        <h2>All Debts</h2>
+        <ul class="debt-list">
+          ${debts.map(debt => {
+            const customer = customers.find(c => c.id === debt.customerId);
+            const isOverdue = new Date(debt.dueDate) < new Date() && debt.status === 'Active';
+            const statusClass = isOverdue ? 'overdue' : (debt.status === 'Paid' ? 'paid' : '');
+            const statusText = isOverdue ? 'Overdue' : debt.status;
+            return `
+              <li class="${statusClass}">
+                <div class="debt-info">
+                  <strong>${customer.name}</strong> owes $${debt.amount}.
+                  <br>Due Date: ${debt.dueDate}
+                </div>
+                <div class="debt-status ${statusClass}">
+                  <strong>${statusText}</strong>
+                </div>
+              </li>
+            `;
+          }).join('')}
+        </ul>
+      `;
+    }
+
+    // Search Debts
+    function searchDebts() {
+      const searchQuery = prompt('Enter customer name or debt amount to search:');
+      if (!searchQuery) return;
+
+      const filteredDebts = debts.filter(debt => {
+        const customer = customers.find(c => c.id === debt.customerId);
+        return customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               debt.amount.toString().includes(searchQuery);
+      });
+
+      if (filteredDebts.length > 0) {
+        showFilteredDebts(filteredDebts);
+      } else {
+        alert('No debts found for that query.');
+      }
+    }
+
+    function showFilteredDebts(filteredDebts) {
+      debtListContainer.innerHTML = `
+        <h2>Filtered Debts</h2>
+        <ul class="debt-list">
+          ${filteredDebts.map(debt => {
+            const customer = customers.find(c => c.id === debt.customerId);
+            const isOverdue = new Date(debt.dueDate) < new Date() && debt.status === 'Active';
+            const statusClass = isOverdue ? 'overdue' : (debt.status === 'Paid' ? 'paid' : '');
+            const statusText = isOverdue ? 'Overdue' : debt.status;
+            return `
+              <li class="${statusClass}">
+                <div class="debt-info">
+                  <strong>${customer.name}</strong> owes $${debt.amount}.
+                  <br>Due Date: ${debt.dueDate}
+                </div>
+                <div class="debt-status ${statusClass}">
+                  <strong>${statusText}</strong>
+                </div>
+              </li>
+            `;
+          }).join('')}
+        </ul>
+      `;
+    }
+  </script>
+
+</body>
+
+</html>
